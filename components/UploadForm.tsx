@@ -8,7 +8,7 @@ export default function UploadForm() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    const form = e.currentTarget; // ✅ store form before await
+    const form = e.currentTarget; 
     const formData = new FormData(form);
 
     await fetch("/api/upload", {
@@ -16,8 +16,8 @@ export default function UploadForm() {
       body: formData,
     });
 
-    form.reset();      // ✅ now safe
-    router.refresh();  // refresh dashboard
+    form.reset();
+    router.refresh();  
   }
 
   return (
