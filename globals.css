@@ -1,0 +1,183 @@
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.home {
+  min-height: 100vh;
+  background: url("/images/home.jpg") no-repeat center center/cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login {
+  min-height: 100vh;
+  background: url("/images/login.jpg") no-repeat center center/cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.register {
+  min-height: 100vh;
+  background: url("/images/register.jpg") no-repeat center center/cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.about {
+  min-height: 100vh;
+  background: url("/images/about.jpg") no-repeat center center/cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-box {
+  width: 90%;
+  max-width: 900px;
+  padding: 40px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  color: white;
+  text-align: center;
+}
+
+.login-box h2 {
+  margin-bottom: 25px;
+}
+
+.login-box input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: none;
+}
+
+.login-box button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #17b3d4;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.login-box button:hover {
+  background: #0f9bb8;
+}
+
+hr {
+  margin: 25px 0;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+th {
+  background: rgba(0, 0, 0, 0.5);
+  padding: 12px;
+}
+
+td {
+  padding: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+a {
+  color: #000000;
+  text-decoration: none;
+}
+
+.bottom-links {
+  margin-top: 20px;
+}
+
+.welcome-text {
+  margin-bottom: 20px;
+  font-size: 16px;
+  color: #000000;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #000000;
+}
+
+/* ===== DASHBOARD TABLE FIX ===== */
+
+.table-container table {
+  background: rgba(255, 255, 255, 0);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table-container th {
+  background: rgba(33, 31, 31, 0.75);
+  color: white;
+}
+
+.table-container td {
+  color: black;
+}
+
+.table-container td a {
+  color: black;
+  font-weight: 600;
+}
+
+.about-text {
+  margin-top: 15px;
+  line-height: 1.8;
+  font-size: 15px;
+  color: #ffffff;
+  text-align: justify;
+}
+
+/* All inputs same style */
+.login-box input {
+  width: 100%;
+  padding: 12px 45px 12px 12px; /* space for eye */
+  margin: 10px 0;
+  border-radius: 8px;
+  border: none;
+  box-sizing: border-box;
+}
+
+/* Password wrapper */
+.password-wrapper {
+  position: relative;
+  width: 100%;
+  margin: 10px 0;
+}
+
+/* Remove margin from password input only */
+.password-wrapper input {
+  margin: 0;
+}
+
+/* Eye icon */
+.eye-icon {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #555;
+}
