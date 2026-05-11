@@ -5,7 +5,8 @@ const db = new Pool({
   ssl: {
     rejectUnauthorized: false,
   },
-  max: 1,
+  max: 10,
+  idleTimeoutMillis: 30000,
 });
 
 export default db;
