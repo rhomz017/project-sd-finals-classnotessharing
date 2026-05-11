@@ -5,7 +5,7 @@ const db = new Pool({
   ssl: {
     rejectUnauthorized: false,
   },
-  max: 1, // important for Vercel serverless
+  max: 1,
 });
 
 export default db;
