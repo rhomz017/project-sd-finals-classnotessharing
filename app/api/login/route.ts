@@ -1,14 +1,12 @@
 import db from "@/lib/db";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
 
-    
     const result = await db.query(
       "SELECT * FROM users WHERE email=$1",
       [email]
@@ -23,7 +21,6 @@ export async function POST(req: Request) {
       );
     }
 
-    
     const valid = await bcrypt.compare(password, user.password);
 
     if (!valid) {
@@ -33,7 +30,6 @@ export async function POST(req: Request) {
       );
     }
 
-    
     const token = jwt.sign(
       {
         userId: user.id,
@@ -44,19 +40,18 @@ export async function POST(req: Request) {
       { expiresIn: "7d" }
     );
 
-    
-    const cookieStore = await cookies();
+    const response = NextResponse.json({
+      message: "Login successful",
+    });
 
-    cookieStore.set("token", token, {
+    response.cookies.set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
     });
 
-    return NextResponse.json({
-      message: "Login successful",
-    });
+    return response;
 
   } catch (err) {
     console.error("LOGIN ERROR:", err);
