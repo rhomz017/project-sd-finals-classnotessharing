@@ -4,11 +4,13 @@ import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password } = await req.json();
+    const body = await req.json();
+    const { name, email, password } = body;
 
+    
     if (!name || !email || !password) {
       return NextResponse.json(
-        { message: "All fields required" },
+        { message: "All fields are required" },
         { status: 400 }
       );
     }
@@ -26,17 +28,23 @@ export async function POST(req: Request) {
       );
     }
 
+    
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    
     await db.query(
       "INSERT INTO users (name, email, password) VALUES ($1, $2, $3)",
-      [name, email, hashedPassword]
+      [name.trim(), email.toLowerCase().trim(), hashedPassword]
     );
 
-    return NextResponse.json({ message: "Success" });
+    return NextResponse.json(
+      { message: "User created successfully" },
+      { status: 201 }
+    );
 
   } catch (error) {
-    console.error(error);
+    console.error("REGISTER ERROR:", error);
+
     return NextResponse.json(
       { message: "Server error" },
       { status: 500 }

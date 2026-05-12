@@ -1,9 +1,8 @@
-import { NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
-import path from "path";
-import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
+import { supabase } from "@/lib/supabase";
 import db from "@/lib/db";
+import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
@@ -14,35 +13,74 @@ export async function POST(req: Request) {
     const file = formData.get("file") as File;
 
     if (!file) {
-      return NextResponse.redirect(new URL("/dashboard?error=nofile", req.url));
+      return NextResponse.json(
+        { error: "No file uploaded" },
+        { status: 400 }
+      );
     }
 
+    
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
 
     if (!token) {
-      return NextResponse.redirect(new URL("/login", req.url));
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
-    const user: any = jwt.verify(token, process.env.JWT_SECRET as string);
+    
+    const decoded: any = jwt.verify(
+      token,
+      process.env.JWT_SECRET!
+    );
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+   
+    const buffer = Buffer.from(await file.arrayBuffer());
 
-    const fileName = Date.now() + "_" + file.name;
-    const uploadPath = path.join(process.cwd(), "public/uploads", fileName);
+    const filePath = `notes/${Date.now()}-${file.name}`;
 
-    await writeFile(uploadPath, buffer);
+   
+    const { error } = await supabase.storage
+      .from("notes")
+      .upload(filePath, buffer);
 
+    if (error) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      );
+    }
+
+    const { data } = supabase.storage
+      .from("notes")
+      .getPublicUrl(filePath);
+
+    
     await db.query(
-  "INSERT INTO notes (user_id, title, subject, file_path, upload_date) VALUES ($1, $2, $3, $4, NOW())",
-  [user.id, title, subject, "/uploads/" + fileName]
-);
+      `INSERT INTO notes 
+      (title, subject, file_path, file_url, user_id) 
+      VALUES ($1, $2, $3, $4, $5)`,
+      [
+        title,
+        subject,
+        filePath,
+        data.publicUrl,
+        decoded.userId,
+      ]
+    );
 
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+    return NextResponse.json({
+      message: "Upload successful",
+    });
 
   } catch (error) {
     console.error("UPLOAD ERROR:", error);
-    return NextResponse.redirect(new URL("/dashboard?error=upload", req.url));
+
+    return NextResponse.json(
+      { error: "Server error" },
+      { status: 500 }
+    );
   }
 }

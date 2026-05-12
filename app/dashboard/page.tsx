@@ -13,18 +13,16 @@ export default async function Dashboard() {
   let user: any;
 
   try {
-    user = jwt.verify(token, process.env.JWT_SECRET as string);
+    user = jwt.verify(token, process.env.JWT_SECRET!);
   } catch {
     redirect("/login");
   }
 
-  
   const result = await db.query(
-    "SELECT * FROM notes ORDER BY id DESC"
-    
+    "SELECT * FROM notes ORDER BY created_at DESC"
   );
 
-  const notes = result.rows;
+  const notes = result.rows || [];
 
   return (
     <div className="home">
@@ -32,17 +30,19 @@ export default async function Dashboard() {
         <div className="login-box">
           <h2>📘 Class Notes Sharing</h2>
 
-          <p className="welcome-text">
-            Welcome, <span className="user-name">{user.name}</span>
+          <p>
+            Welcome, <b>{user.name || "User"}</b>
           </p>
 
           <UploadForm />
 
-          <hr style={{ margin: "20px 0" }} />
+          <hr />
 
           <h3>📂 Available Notes</h3>
 
-          <div className="table-container">
+          {notes.length === 0 ? (
+            <p>No notes uploaded yet.</p>
+          ) : (
             <table>
               <thead>
                 <tr>
@@ -60,22 +60,21 @@ export default async function Dashboard() {
                     <td>{row.title}</td>
                     <td>{row.subject}</td>
 
-                    {/* ✅ FIX: date rendering */}
                     <td>
-                      {row.upload_date
-                        ? new Date(row.upload_date).toLocaleDateString()
-                        : "No date"}
+                      {new Date(row.created_at).toLocaleDateString()}
                     </td>
 
                     <td>
-                      <a href={row.file_path} download>
+                      <a href={row.file_url} target="_blank">
                         Download
                       </a>
                     </td>
 
                     <td>
-                      {user.id === row.user_id ? (
-                        <a href={`/api/delete?id=${row.id}`}>Delete</a>
+                      {user.userId === row.user_id ? (
+                        <form action={`/api/delete?id=${row.id}`}>
+                          <button type="submit">Delete</button>
+                        </form>
                       ) : (
                         "Owner Only"
                       )}
@@ -84,9 +83,9 @@ export default async function Dashboard() {
                 ))}
               </tbody>
             </table>
-          </div>
+          )}
 
-          <div className="bottom-links" style={{ marginTop: "20px" }}>
+          <div style={{ marginTop: "20px" }}>
             <a href="/about">About This Website</a> |{" "}
             <a href="/api/logout">Logout</a>
           </div>

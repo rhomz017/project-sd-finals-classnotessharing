@@ -1,24 +1,21 @@
-import { NextRequest, NextResponse } from "next/server";
 import db from "@/lib/db";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const formData = await req.formData();
-
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
+    const { email, password } = await req.json();
 
     
     const result = await db.query(
-      "SELECT * FROM users WHERE email = $1",
+      "SELECT * FROM users WHERE email=$1",
       [email]
     );
 
     const user = result.rows[0];
 
-    
     if (!user) {
       return NextResponse.json(
         { error: "Invalid email or password" },
@@ -27,9 +24,9 @@ export async function POST(req: NextRequest) {
     }
 
     
-    const validPassword = await bcrypt.compare(password, user.password);
+    const valid = await bcrypt.compare(password, user.password);
 
-    if (!validPassword) {
+    if (!valid) {
       return NextResponse.json(
         { error: "Invalid email or password" },
         { status: 401 }
@@ -39,26 +36,31 @@ export async function POST(req: NextRequest) {
     
     const token = jwt.sign(
       {
-        id: user.id,
+        userId: user.id,
         name: user.name,
         email: user.email,
       },
-      process.env.JWT_SECRET as string,
-      { expiresIn: "1d" }
+      process.env.JWT_SECRET!,
+      { expiresIn: "7d" }
     );
 
     
-    const response = NextResponse.redirect(new URL("/dashboard", req.url));
+    const cookieStore = await cookies();
 
-    response.cookies.set("token", token, {
+    cookieStore.set("token", token, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
       path: "/",
     });
 
-    return response;
+    return NextResponse.json({
+      message: "Login successful",
+    });
 
   } catch (err) {
-    console.log("LOGIN ERROR:", err);
+    console.error("LOGIN ERROR:", err);
+
     return NextResponse.json(
       { error: "Server error" },
       { status: 500 }
