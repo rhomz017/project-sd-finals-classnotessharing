@@ -3,7 +3,7 @@ import db from "@/lib/db";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 
-export async function DELETE(req: Request) {
+export async function POST(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
