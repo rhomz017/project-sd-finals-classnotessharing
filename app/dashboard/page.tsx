@@ -72,8 +72,13 @@ export default async function Dashboard() {
 
                     <td>
                       {user.userId === row.user_id ? (
-                        <form action={`/api/delete?id=${row.id}`}>
-                          <button type="submit">Delete</button>
+                        <form
+                          action={`/api/delete?id=${row.id}`}
+                          method="POST"
+                        >
+                          <button type="submit">
+                            Delete
+                          </button>
                         </form>
                       ) : (
                         "Owner Only"
