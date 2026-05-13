@@ -181,3 +181,29 @@ a {
   cursor: pointer;
   color: #555;
 }
+
+
+@media (max-width: 768px) {
+
+  .login-box {
+    width: 95%;
+    padding: 20px;
+  }
+
+  table {
+    font-size: 14px;
+  }
+
+  th, td {
+    padding: 8px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  h3 {
+    font-size: 18px;
+  }
+
+}

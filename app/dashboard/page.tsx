@@ -4,6 +4,15 @@ import jwt from "jsonwebtoken";
 import UploadForm from "@/components/UploadForm";
 import db from "@/lib/db";
 
+type Note = {
+  id: number;
+  title: string;
+  subject: string;
+  created_at: string;
+  file_url: string;
+  user_id: number;
+};
+
 export default async function Dashboard() {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
@@ -22,7 +31,7 @@ export default async function Dashboard() {
     "SELECT * FROM notes ORDER BY created_at DESC"
   );
 
-  const notes = result.rows || [];
+  const notes: Note[] = result.rows; // ✅ FIXED TYPE
 
   return (
     <div className="home">
@@ -43,51 +52,50 @@ export default async function Dashboard() {
           {notes.length === 0 ? (
             <p>No notes uploaded yet.</p>
           ) : (
-            <table>
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Subject</th>
-                  <th>Date</th>
-                  <th>Download</th>
-                  <th>Delete</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {notes.map((row: any) => (
-                  <tr key={row.id}>
-                    <td>{row.title}</td>
-                    <td>{row.subject}</td>
-
-                    <td>
-                      {new Date(row.created_at).toLocaleDateString()}
-                    </td>
-
-                    <td>
-                      <a href={row.file_url} target="_blank">
-                        Download
-                      </a>
-                    </td>
-
-                    <td>
-                      {user.userId === row.user_id ? (
-                        <form
-                          action={`/api/delete?id=${row.id}`}
-                          method="POST"
-                        >
-                          <button type="submit">
-                            Delete
-                          </button>
-                        </form>
-                      ) : (
-                        "Owner Only"
-                      )}
-                    </td>
+            <div className="table-container"> {/* ✅ MOBILE FIX */}
+              <table>
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Subject</th>
+                    <th>Date</th>
+                    <th>Download</th>
+                    <th>Delete</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+
+                <tbody>
+                  {notes.map((row) => (
+                    <tr key={row.id}>
+                      <td>{row.title}</td>
+                      <td>{row.subject}</td>
+                      <td>
+                        {new Date(row.created_at).toLocaleDateString()}
+                      </td>
+                      <td>
+                        <a href={row.file_url} target="_blank">
+                          Download
+                        </a>
+                      </td>
+                      <td>
+                        {user.userId === row.user_id ? (
+                          <form
+                            action={`/api/delete?id=${row.id}`}
+                            method="POST"
+                          >
+                            <button type="submit">
+                              Delete
+                            </button>
+                          </form>
+                        ) : (
+                          "Owner Only"
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
 
           <div style={{ marginTop: "20px" }}>

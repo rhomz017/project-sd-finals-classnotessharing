@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const response = NextResponse.redirect(new URL("/login", "http://localhost:3000"));
+  const response = NextResponse.redirect(new URL("/login", "https://project-sd-finals-classnotessharing.vercel.app/login"));
 
   // Clear cookie properly
   response.cookies.set("token", "", {
