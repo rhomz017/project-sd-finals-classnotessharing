@@ -1,70 +1,44 @@
-import { redirect } from "next/navigation";
-import db from "@/lib/db";
-import bcrypt from "bcryptjs";
+"use client";
 
-export default async function RegisterPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string }>;
-}) {
-  const params = await searchParams;
+import { useRouter } from "next/navigation";
 
-  async function handleRegister(formData: FormData) {
-    "use server";
+export default function RegisterForm() {
+  const router = useRouter();
 
-    try {
-      const name = (formData.get("name") as string)?.trim();
-      const email = (formData.get("email") as string)?.toLowerCase().trim();
-      const password = formData.get("password") as string;
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
 
-      if (!name || !email || !password) {
-        redirect("/register?error=All fields required");
-      }
+    const formData = new FormData(e.currentTarget);
 
-      const result = await db.query(
-        "SELECT id FROM users WHERE email = $1",
-        [email]
-      );
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: formData.get("name"),
+        email: formData.get("email"),
+        password: formData.get("password"),
+      }),
+    });
 
-      if (result.rows.length > 0) {
-        redirect("/register?error=Email already exists");
-      }
-
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      await db.query(
-        "INSERT INTO users (name, email, password) VALUES ($1, $2, $3)",
-        [name, email, hashedPassword]
-      );
-
-      redirect("/login");
-
-    } catch (error) {
-      console.error("REGISTER ERROR:", error);
-      redirect("/register?error=Created Account Succesfully!");
+    if (res.ok) {
+      router.push("/login");
+    } else {
+      const data = await res.json();
+      alert(data.message);
     }
   }
 
   return (
-    <div className="register">
-      <div className="login-box">
-        <h2>Create Account</h2>
+    <div>
+      <form onSubmit={handleSubmit}>
+        <input name="name" placeholder="Full Name" required />
+        <input name="email" placeholder="Email" required />
+        <input name="password" placeholder="Password" required />
+        <button type="submit">Register</button>
+      </form>
 
-        {params?.error && (
-          <p style={{ color: "white" }}>{params.error}</p>
-        )}
-
-        <form action={handleRegister}>
-          <input name="name" placeholder="Full Name" required />
-          <input name="email" placeholder="Email" required />
-          <input name="password" placeholder="Password" required />
-          <button type="submit">Register</button>
-        </form>
-
-        <div className="bottom-links">
-          <a href="/login">Already have account? Login</a>
-        </div>
-
+      <div className="bottom-links">
+        <a href="/login">Already have account? Login</a>
       </div>
     </div>
   );
