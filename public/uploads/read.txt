@@ -1,1 +1,1 @@
-aranetarommel
+This folder is only for testing and temporary note storage, when using Supabase in production, it is no longer needed.
